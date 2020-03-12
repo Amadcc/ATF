@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import {FlatList} from 'react-native';
 import {UsersList} from './UsersList';
 
-const api = `https://jsonplaceholder.typicode.com/photos?_limit=10&_page=`;
+const ClientID = 'cSINit6w_4pDBfqn9ongusWMzIid5yKkU-TkQ5imrY4';
+const api = `https://api.unsplash.com/photos/?client_id=${ClientID}&page=`;
 
 export default class User extends Component {
   state = {
@@ -56,7 +57,7 @@ export default class User extends Component {
   };
 
   renderRow = ({item}) => {
-    return <UsersList text={item.title} img={item.url} />;
+    return <UsersList text={item.user.name} img={item.urls.small} />;
   };
 
   render() {
