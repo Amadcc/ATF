@@ -1,14 +1,12 @@
 import React, {Component} from 'react';
-import {FlatList} from 'react-native';
+import {ActivityIndicator, FlatList} from 'react-native';
 import {UsersList} from './UsersList';
 
-const ClientID = 'cSINit6w_4pDBfqn9ongusWMzIid5yKkU-TkQ5imrY4';
-const api = `https://api.unsplash.com/photos/?client_id=${ClientID}&page=`;
+const api = `http://5e6a26470f70dd001643baa0.mockapi.io/users/users?limit=10&page=`;
 
 export default class User extends Component {
   state = {
     getData: [],
-    isLoading: false,
     isRefreshing: false,
     page: 1,
   };
@@ -23,7 +21,7 @@ export default class User extends Component {
       .then(res => res.json())
       .then(res => {
         this.setState({
-          getData: this.state.getData.concat(res),
+          getData: [...this.state.getData, ...res],
           isRefreshing: false,
         });
       });
@@ -33,7 +31,7 @@ export default class User extends Component {
     this.setState(
       {
         isRefreshing: true,
-        page: this.state.page + 1,
+        page: 1,
       },
       () => {
         const {page} = this.state;
@@ -50,14 +48,15 @@ export default class User extends Component {
   };
 
   handleLoadMore = () => {
-    this.setState(
-      {isRefreshing: true, page: this.state.page + 1},
-      this.fetchData(),
-    );
+    this.setState({page: this.state.page + 1}, () => {
+      this.fetchData();
+    });
   };
 
-  renderRow = ({item}) => {
-    return <UsersList text={item.user.name} img={item.urls.small} />;
+  renderItem = ({item}) => {
+    return (
+      <UsersList text={item.name} img={item.avatar} status={item.status} />
+    );
   };
 
   render() {
@@ -65,12 +64,17 @@ export default class User extends Component {
     return (
       <FlatList
         data={getData}
-        renderItem={this.renderRow}
+        renderItem={this.renderItem}
         refreshing={isRefreshing}
         onRefresh={this.handleRefresh}
         keyExtractor={(item, index) => index.toString()}
+        ListFooterComponent={() =>
+          isRefreshing ? null : (
+            <ActivityIndicator animating color="#bc2b78" size="large" />
+          )
+        }
         onEndReached={this.handleLoadMore}
-        onEndReachedThreshold={0}
+        onEndReachedThreshold={0.5}
       />
     );
   }
